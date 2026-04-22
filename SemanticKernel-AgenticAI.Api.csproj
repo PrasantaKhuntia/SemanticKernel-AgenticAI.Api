@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>SemanticKernel_AgenticAI.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.6" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.74.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.74.0" />
+    <PackageReference Include="Polly" Version="8.6.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+</Project>
