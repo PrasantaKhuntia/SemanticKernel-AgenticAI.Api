@@ -1,4 +1,5 @@
 ﻿using Microsoft.SemanticKernel.ChatCompletion;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,25 +12,28 @@ namespace SemanticKernel_AgenticAI.Api.Core.Memory
     {
         private readonly ChatHistory _history = new();
 
-        public ChatHistory Build(string input)
+        public ChatHistory Build(string userInput, string context)
         {
-            if (_history.Count == 0)
-            {
-                _history.AddSystemMessage(@"
+            var history = new ChatHistory();
+
+            history.AddSystemMessage(@"
                 You are an AI assistant.
 
-                Rules:
-                - For ANY weather-related query, you MUST call available tools
-                - NEVER answer from your own knowledge for weather
-                - If tools fail, say you cannot fetch data
-
-                Be precise and concise.
+                STRICT RULES:
+                1. For real-time weather → ALWAYS use WeatherPlugin
+                2. For general knowledge (climate etc.) → MUST use provided context
+                3. If context = NO_CONTEXT → say 'I don’t have enough data'
+                4. DO NOT answer from your own knowledge
                 ");
+
+            if (context != "NO_CONTEXT")
+            {
+                history.AddSystemMessage($@"Context:{context}");
             }
 
-            _history.AddUserMessage(input);
+            history.AddUserMessage(userInput);
 
-            return _history;
+            return history;
         }
 
         public void AddAssistantMessage(string response)
