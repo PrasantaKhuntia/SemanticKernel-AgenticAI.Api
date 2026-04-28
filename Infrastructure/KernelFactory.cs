@@ -20,6 +20,11 @@ namespace SemanticKernel_AgenticAI.Api.Infrastructure
                 apiKey: settings.ApiKey
             );
 
+            builder.AddOpenAITextEmbeddingGeneration(
+                modelId: "text-embedding-3-small",
+                apiKey: settings.ApiKey
+            );
+
             var kernel = builder.Build();
 
             return kernel;

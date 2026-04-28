@@ -8,6 +8,7 @@ using SemanticKernel_AgenticAI.Api.Plugins;
 using SemanticKernel_AgenticAI.Api.Core.RAG;
 using Microsoft.SemanticKernel;
 using Microsoft.Extensions.AI;
+using SemanticKernel_AgenticAI.Api.Core.VectorDB;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,10 +44,23 @@ builder.Services.AddScoped<AgentPlanner>();
 builder.Services.AddScoped<IAgentService, AgentService>();
 
 // In-Memory Store
-builder.Services.AddSingleton<InMemoryVectorStore>();
 builder.Services.AddScoped<IRetriever, Retriever>();
 
+// Vector Store
+builder.Services.AddHttpClient<ChromaClient>(c =>
+{
+    c.BaseAddress = new Uri("http://localhost:8000");
+});
+
+builder.Services.AddScoped<DocumentIndexer>();
+
 var app = builder.Build();
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var indexer = scope.ServiceProvider.GetRequiredService<DocumentIndexer>();
+//    await indexer.IndexAsync();
+//}
 
 app.UseSwagger();
 app.UseSwaggerUI();

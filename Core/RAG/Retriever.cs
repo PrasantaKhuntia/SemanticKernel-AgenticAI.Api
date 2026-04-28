@@ -1,37 +1,38 @@
 ﻿namespace SemanticKernel_AgenticAI.Api.Core.RAG
 {
+    using Microsoft.SemanticKernel;
+    using Microsoft.Extensions.AI;
+    using Microsoft.SemanticKernel.Embeddings;
+    using SemanticKernel_AgenticAI.Api.Core.VectorDB;
+
     public class Retriever : IRetriever
     {
-        private readonly InMemoryVectorStore _store;
+        private readonly Kernel _kernel;
+        private readonly ChromaClient _chroma;
 
-        public Retriever(InMemoryVectorStore store)
+        private const string COLLECTION_NAME = "weather";
+
+        public Retriever(Kernel kernel, ChromaClient chroma)
         {
-            _store = store;
+            _kernel = kernel;
+            _chroma = chroma;
         }
 
-        public Task<List<string>> RetrieveAsync(string query)
+        public async Task<List<string>> RetrieveAsync(string query)
         {
-            var stopWords = new[] { "compare", "weather", "of", "and", "the" };
+            // 1. Get embedding service
+            var embeddingService = _kernel.GetRequiredService<ITextEmbeddingGenerationService>();
 
-            var queryWords = query
-                .ToLower()
-                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Where(w => !stopWords.Contains(w))
-                .ToList();
+            // 2. Convert query → embedding
+            var embedding = await embeddingService.GenerateEmbeddingAsync(query);
 
-            var results = _store.GetAll()
-                .Select(doc => new
-                {
-                    Doc = doc,
-                    Score = queryWords.Count(word => doc.ToLower().Contains(word))
-                })
-                .Where(x => x.Score > 0)
-                .OrderByDescending(x => x.Score) // 🔥 IMPORTANT
-                .Take(3)
-                .Select(x => x.Doc)
-                .ToList();
+            // 3. Get collection ID
+            var collectionId = await _chroma.GetOrCreateCollectionAsync(COLLECTION_NAME);
 
-            return Task.FromResult(results);
+            // 4. Query Chroma
+            var results = await _chroma.QueryAsync(collectionId, embedding.ToArray());
+
+            return results;
         }
     }
 }
